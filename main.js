@@ -25,7 +25,7 @@ const servers = {
 
 const constraints = {
   video: true,
-  audio: true
+  audio: true,
 }
 
 const init = async () => {
@@ -84,7 +84,7 @@ const createPeerConnection = async memberId => {
   document.getElementById('user-1').classList.add('smallFrame')
 
   if (!localStream) {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: { 'echoCancellation': true } })
     document.getElementById('user-1').srcObject = localStream  
   }
 
@@ -92,8 +92,11 @@ const createPeerConnection = async memberId => {
     peerConnection.addTrack(track, localStream)
   })
 
-  peerConnection.addEventListener('track', event => {
+  peerConnection.addEventListener('track', event => {    
     event.streams[0].getTracks().forEach(track => {
+      if (track.kind == 'audio') {
+        return track.stop()
+      }
       remoteStream.addTrack(track)
     })
   })
@@ -152,8 +155,6 @@ const toggleCamera = () => {
 
 const toggleMicrophone = () => {
   let audioTrack = localStream.getTracks().find(track => track.kind === 'audio')  
-  console.log(localStream.getTracks())
-
   if (audioTrack.enabled) {
     audioTrack.enabled = false
     document.getElementById('mic-btn').style.backgroundColor = 'rgb(255, 80, 80)'
