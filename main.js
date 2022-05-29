@@ -94,9 +94,6 @@ const createPeerConnection = async memberId => {
 
   peerConnection.addEventListener('track', event => {    
     event.streams[0].getTracks().forEach(track => {
-      if (track.kind == 'audio') {
-        return track.stop()
-      }
       remoteStream.addTrack(track)
     })
   })
